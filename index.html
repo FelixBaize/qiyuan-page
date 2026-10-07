@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Qiyuan Studio</title>
+<meta name="description" content="Qiyuan Studio builds an AI pipeline that turns expert scripts into finished explainer videos.">
+<style>
+  :root { --bg:#faf9f6; --fg:#1d1d1b; --muted:#6b6a64; --line:#e4e2db; --accent:#b4552d; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#161614; --fg:#ecebe6; --muted:#a09e96; --line:#2c2b28; --accent:#e08a5f; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg);
+         font:17px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+  main { max-width:680px; margin:0 auto; padding:72px 20px 96px; }
+  h1 { font-size:2.1rem; line-height:1.2; margin:0 0 12px; letter-spacing:-0.02em; }
+  h2 { font-size:0.8rem; text-transform:uppercase; letter-spacing:0.12em; color:var(--muted);
+       margin:48px 0 12px; font-weight:600; }
+  p { margin:0 0 14px; }
+  .lede { font-size:1.2rem; color:var(--muted); }
+  ol { padding-left:1.2em; margin:0; }
+  li { margin-bottom:8px; }
+  a { color:var(--accent); }
+  footer { margin-top:56px; padding-top:20px; border-top:1px solid var(--line); color:var(--muted); font-size:0.9rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Qiyuan Studio</h1>
+  <p class="lede">We turn expert knowledge into finished explainer videos, using an automated production pipeline built on Claude.</p>
+
+  <h2>What we do</h2>
+  <p>Specialists such as lawyers have deep knowledge but little time to produce video. They give us a draft script; we deliver a finished, edited lecture video. Doing it by hand took 6 to 9 hours of editing per episode. Our pipeline does most of that work automatically.</p>
+
+  <h2>How it works</h2>
+  <ol>
+    <li><strong>Script.</strong> Claude rewrites the expert's draft for spoken delivery and flags factual points for the expert to confirm.</li>
+    <li><strong>Voice and presenter.</strong> Text-to-speech narration and an AI presenter are generated from the approved script.</li>
+    <li><strong>Edit.</strong> Our own tool drives DaVinci Resolve to assemble the timeline: layouts, b-roll, captions and motion, following a written style guide.</li>
+    <li><strong>Review.</strong> Clients comment on scripts and cuts through a shared review page, and changes go back into the pipeline.</li>
+  </ol>
+  <p>Claude Code is how we build and run this pipeline day to day, from the editing tool itself to each episode's production.</p>
+
+  <h2>Current work</h2>
+  <p>A 30-episode series on U.S. patent law and Section 337 investigations, produced for a U.S.-based intellectual property law firm.</p>
+
+  <footer>
+    Contact: <a href="mailto:hi@qiyuan.page">hi@qiyuan.page</a>
+  </footer>
+</main>
+</body>
+</html>
