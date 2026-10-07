@@ -4,269 +4,246 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Qiyuan Studio</title>
-<meta name="description" content="Qiyuan Studio builds an automated pipeline, built with Claude Code, that turns expert scripts into finished explainer videos.">
+<meta name="description" content="Qiyuan Studio turns expert scripts into finished explainer videos, with an editing pipeline built on Claude.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <style>
   :root {
-    --paper: #ffffff; --desk: #f2f1ee; --ink: #111; --muted: #555; --rule: #222; --faint: #c9c7c1;
+    --bg: #fbfaf7; --ink: #141414; --muted: #63615c; --line: #dcd9d2; --accent: #c4501f;
     --serif: "STIX Two Text", "Times New Roman", Times, "Songti SC", "Noto Serif CJK SC", serif;
-    --mono: "SF Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "PingFang SC", sans-serif;
     color-scheme: light;
   }
   * { box-sizing: border-box; }
-  html { -webkit-text-size-adjust: 100%; }
-  body { margin: 0; background: var(--desk); color: var(--ink); font: 17px/1.55 var(--serif); }
-  .sheet { position: relative; max-width: 820px; margin: 40px auto; background: var(--paper);
-           padding: 56px 88px 72px; box-shadow: 0 1px 3px rgba(0,0,0,.08), 0 12px 40px rgba(0,0,0,.06); }
-  .stamp { position: absolute; left: 22px; top: 470px; transform: rotate(-90deg); transform-origin: left top;
-           font-size: 30px; color: #8a8a8a; letter-spacing: .02em; white-space: nowrap; }
-  .running { display: flex; justify-content: space-between; align-items: baseline;
-             border-bottom: .7px solid var(--rule); padding-bottom: 3px; font-size: 13px; }
-  .lang { font: inherit; background: none; border: 0; padding: 0; cursor: pointer; color: var(--muted); }
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 18px/1.6 var(--serif); }
+  a { color: inherit; text-decoration-thickness: .5px; text-underline-offset: 3px; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 40px; }
+
+  header { border-bottom: .5px solid var(--line); }
+  header .wrap { display: flex; justify-content: space-between; align-items: baseline; padding-top: 22px; padding-bottom: 18px; }
+  .brand { font-variant: small-caps; letter-spacing: .06em; font-size: 19px; text-decoration: none; }
+  nav { display: flex; gap: 28px; font: 13px/1 var(--sans); letter-spacing: .04em; color: var(--muted); }
+  nav a { text-decoration: none; }
+  nav a:hover { color: var(--ink); }
+  .lang { font: inherit; letter-spacing: inherit; background: none; border: 0; padding: 0; color: inherit; cursor: pointer; }
   .lang b { color: var(--ink); font-weight: 600; }
-  h1 { font-weight: 400; font-size: 27px; line-height: 1.25; margin: 56px 0 30px; font-variant: small-caps; letter-spacing: .01em; }
-  .authors { display: flex; gap: 72px; font-size: 15px; line-height: 1.35; margin-bottom: 36px; }
-  .authors b { font-weight: 600; }
-  .authors code { font: 13.5px var(--mono); }
-  .abstract { margin: 0 52px 34px; font-size: 15.5px; text-align: justify; hyphens: auto; }
-  .abstract h2 { text-align: center; font-size: 16px; margin: 0 0 8px; font-variant: small-caps; font-weight: 400; letter-spacing: .04em; }
-  h2 { font-weight: 400; font-size: 18px; margin: 32px 0 10px; font-variant: small-caps; letter-spacing: .02em; }
-  h2 .n { display: inline-block; min-width: 1.6em; }
-  p { margin: 0 0 11px; text-align: justify; hyphens: auto; }
-  ol, ul { margin: 0 0 12px; padding-left: 1.4em; }
-  li { margin-bottom: 5px; text-align: justify; }
-  figure { margin: 22px 0 20px; }
-  figure img, figure svg { display: block; width: 100%; height: auto; }
-  figure img { border: .5px solid var(--faint); }
-  figcaption { font-size: 14.5px; margin-top: 8px; text-align: justify; }
-  figcaption b { font-weight: 600; }
-  table { border-collapse: collapse; margin: 6px auto 4px; font-size: 15px; }
-  caption { caption-side: top; font-size: 14.5px; margin-bottom: 8px; text-align: left; }
-  thead tr { border-top: 1.2px solid var(--rule); border-bottom: .7px solid var(--rule); }
-  tbody tr:last-child { border-bottom: 1.2px solid var(--rule); }
-  th { font-weight: 600; text-align: left; padding: 4px 14px; }
-  td { padding: 3px 14px; vertical-align: top; }
-  td.r, th.r { text-align: right; font-variant-numeric: tabular-nums; }
-  .fn { margin-top: 30px; padding-top: 5px; font-size: 13px; position: relative; }
-  .fn::before { content: ""; position: absolute; top: 0; left: 0; width: 34%; border-top: .7px solid var(--rule); }
-  .scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .pageno { text-align: center; font-size: 14px; margin-top: 30px; }
-  a { color: inherit; }
+
+  .hero { display: grid; grid-template-columns: 1.25fr .75fr; gap: 72px; align-items: center; padding: 88px 0 96px; }
+  .eyebrow { font: 12px/1.4 var(--sans); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); margin: 0 0 26px; }
+  h1 { font-weight: 400; font-size: 54px; line-height: 1.08; letter-spacing: -.015em; margin: 0 0 28px; }
+  h1 em { font-style: italic; color: var(--accent); }
+  .lede { font-size: 20px; line-height: 1.55; color: #2b2a27; max-width: 30em; margin: 0 0 32px; }
+  .cta { font: 14px/1 var(--sans); letter-spacing: .03em; }
+  .cta a { text-decoration: none; border-bottom: 1px solid var(--accent); padding-bottom: 4px; }
+
+  .phone { position: relative; aspect-ratio: 9 / 16; width: 100%; max-width: 300px; margin: 0 auto;
+           border-radius: 26px; overflow: hidden; background: #0d0d0d;
+           box-shadow: 0 0 0 1px #1d1d1d, 0 0 0 7px #0d0d0d, 0 24px 60px rgba(0,0,0,.18); }
+  .phone video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  figure { margin: 0; }
+  figcaption { font-size: 14px; line-height: 1.5; color: var(--muted); margin-top: 22px; }
+  figcaption .fig { font-variant: small-caps; letter-spacing: .04em; color: var(--accent); margin-right: .35em; }
+  .hero figcaption { max-width: 300px; margin-left: auto; margin-right: auto; }
+
+  section.block { border-top: .5px solid var(--line); padding: 72px 0 80px; }
+  .head { display: grid; grid-template-columns: 200px 1fr; gap: 40px; margin-bottom: 48px; }
+  .num { font: 12px/1.9 var(--sans); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+  .num span:first-child { color: var(--accent); margin-right: 10px; }
+  h2 { font-weight: 400; font-size: 34px; line-height: 1.2; margin: 0; letter-spacing: -.01em; }
+  .head p { color: var(--muted); margin: 12px 0 0; max-width: 34em; }
+
+  .case { display: grid; grid-template-columns: 300px 1fr; gap: 72px; align-items: start; margin-left: 240px; }
+  .case h3, .tool h3 { font-weight: 500; font-size: 24px; margin: 0 0 14px; }
+  .case p, .tool p { margin: 0 0 14px; }
+  dl.meta { display: grid; grid-template-columns: max-content 1fr; gap: 8px 22px; margin: 26px 0 0;
+            padding-top: 18px; border-top: .5px solid var(--line); font-size: 15px; }
+  dl.meta dt { font: 12px/1.9 var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  dl.meta dd { margin: 0; }
+  .tool { margin: 88px 0 0 240px; }
+  .tool .text { max-width: 36em; margin-bottom: 32px; }
+  .shot { border-radius: 10px; overflow: hidden; box-shadow: 0 0 0 .5px rgba(0,0,0,.25), 0 24px 60px rgba(0,0,0,.14); }
+  .shot img { display: block; width: 100%; height: auto; }
+
+  .grid4, .grid3 { display: grid; gap: 40px; margin-left: 240px; }
+  .grid4 { grid-template-columns: repeat(4, 1fr); }
+  .grid3 { grid-template-columns: repeat(3, 1fr); }
+  .step { border-top: 1px solid var(--ink); padding-top: 16px; }
+  .step .k { font: 12px/1 var(--sans); letter-spacing: .14em; color: var(--accent); }
+  .step h4 { font-weight: 500; font-size: 20px; margin: 14px 0 8px; }
+  .step p { font-size: 16px; line-height: 1.55; color: #3a3935; margin: 0; }
+
+  footer { border-top: .5px solid var(--line); padding: 40px 0 56px; font: 13px/1.6 var(--sans); color: var(--muted); }
+  footer .wrap { display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+
   .zh { display: none; }
   html[lang="zh"] .en { display: none; }
-  html[lang="zh"] .zh { display: block; }
-  html[lang="zh"] h1, html[lang="zh"] h2 { font-variant: normal; letter-spacing: .04em; }
-  html[lang="zh"] p, html[lang="zh"] li, html[lang="zh"] .abstract, html[lang="zh"] figcaption { text-align: left; }
-  @media (max-width: 860px) {
-    .sheet { margin: 0; padding: 28px 16px 44px; box-shadow: none; }
-    .stamp { display: none; }
-    h1 { font-size: 22px; margin-top: 34px; }
-    .authors { flex-direction: column; gap: 14px; }
-    .abstract { margin: 0 0 28px; }
-    table { font-size: 14px; }
-    th, td { padding: 3px 8px; }
-    p, li, .abstract p, figcaption { text-align: left; hyphens: manual; }
-    .scroll svg { min-width: 560px; }
+  html[lang="zh"] .zh { display: revert; }
+  html[lang="zh"] h1 { font-size: 46px; line-height: 1.25; letter-spacing: .02em; }
+  html[lang="zh"] h2 { letter-spacing: .03em; }
+
+  @media (max-width: 1000px) {
+    .head { grid-template-columns: 1fr; gap: 10px; }
+    .case, .tool, .grid4, .grid3 { margin-left: 0; }
+    .grid4 { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 760px) {
+    body { font-size: 17px; }
+    .wrap { padding: 0 16px; }
+    header .wrap { flex-direction: column; gap: 12px; }
+    nav { gap: 18px; flex-wrap: wrap; }
+    .hero { grid-template-columns: 1fr; gap: 48px; padding: 48px 0 64px; }
+    h1 { font-size: 38px; }
+    html[lang="zh"] h1 { font-size: 32px; }
+    .lede { font-size: 18px; }
+    .phone { max-width: 260px; }
+    section.block { padding: 56px 0 60px; }
+    h2 { font-size: 28px; }
+    .case { grid-template-columns: 1fr; gap: 36px; }
+    .tool { margin-top: 64px; }
+    .grid4, .grid3 { grid-template-columns: 1fr; gap: 28px; }
   }
 </style>
 </head>
 <body>
-<div class="sheet">
-  <div class="stamp" aria-hidden="true">qiyuan.page &nbsp;[studio]&nbsp; 8 Oct 2026</div>
 
-  <div class="running">
-    <span><span class="en">Studio note.</span><span class="zh">工作室说明</span></span>
-    <button class="lang" id="lang" type="button" aria-label="Switch language"><b>EN</b> / 中文</button>
+<header>
+  <div class="wrap">
+    <a class="brand" href="#">Qiyuan Studio</a>
+    <nav>
+      <a href="#work"><span class="en">Work</span><span class="zh">作品</span></a>
+      <a href="#process"><span class="en">Process</span><span class="zh">流程</span></a>
+      <a href="#principles"><span class="en">Principles</span><span class="zh">原则</span></a>
+      <a href="mailto:hi@qiyuan.page"><span class="en">Contact</span><span class="zh">联系</span></a>
+      <button class="lang" id="lang" type="button" aria-label="Switch language"><b>EN</b> / 中文</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <div class="hero">
+    <div>
+      <p class="eyebrow"><span class="en">Explainer video studio</span><span class="zh">讲解视频工作室</span></p>
+      <h1 class="en">Expert knowledge, turned into <em>finished video</em>.</h1>
+      <h1 class="zh">把专家的知识，<br>做成<em>剪好的成片</em>。</h1>
+      <p class="lede en">Specialists send us a draft script. We return an edited lecture, made with a production pipeline we built on Claude, and every step is checked by a person.</p>
+      <p class="lede zh">专业人士交给我们一份讲稿，我们交回一集剪好的讲解视频。背后是一条用 Claude 搭建的生产流水线，每一步都有人把关。</p>
+      <p class="cta"><a href="mailto:hi@qiyuan.page">hi@qiyuan.page&nbsp;&nbsp;→</a></p>
+    </div>
+    <figure>
+      <div class="phone"><video src="media/hero.mp4" poster="media/hero.jpg" autoplay muted loop playsinline preload="auto" aria-label="Perspective document effect"></video></div>
+      <figcaption>
+        <span class="en"><span class="fig">Fig. 1</span>A court opinion turns into view and the key passage is highlighted. One module of our editing tool, rendered in DaVinci Resolve.</span>
+        <span class="zh"><span class="fig">图 1</span>判决原文翻转入画，关键段落高亮。这是我们剪辑工具里的一个模块，在 DaVinci Resolve 中渲染。</span>
+      </figcaption>
+    </figure>
   </div>
 
-  <!-- ===================== ENGLISH ===================== -->
-  <article class="en">
-    <h1>From Expert Script to Finished Video:<br>An Editing Pipeline Built with Claude</h1>
-
-    <div class="authors">
-      <div><b>Felix Q. Yuan</b><br>Qiyuan Studio<br><code>hi@qiyuan.page</code></div>
+  <section class="block" id="work">
+    <div class="head">
+      <div class="num"><span>01</span><span class="en">Work</span><span class="zh">作品</span></div>
+      <div><h2 class="en">Selected work</h2><h2 class="zh">作品</h2></div>
     </div>
 
-    <section class="abstract">
-      <h2>Abstract</h2>
-      <p>Specialists such as lawyers know their subject well but have little time to turn it into video. Qiyuan Studio takes an expert's draft script and returns a finished, edited lecture. We built the production pipeline with Claude Code. Claude rewrites the draft for narration and flags facts for the expert to confirm. Narration and an on-screen presenter are generated from the approved script. Our own editing tool then assembles the timeline in DaVinci Resolve from a library of versioned effect modules, and reads the timeline back to confirm each change actually happened. Clients comment on scripts in a shared review page. Edited by hand, an episode took us 6 to 9 hours. We are using the pipeline on a 30-episode series about U.S. patent law and Section 337 investigations for a U.S. intellectual property law firm. We have not yet measured how much time it saves per episode; Section 6 says what we know and what we do not.</p>
-    </section>
-
-    <h2><span class="n">1</span>Introduction</h2>
-    <p>Explainer videos for professional services have a shape that repeats: one presenter, source documents that must be shown exactly, bilingual subtitles, and a client who checks every legal statement. Most of the editing time goes into the same moves done again by hand, such as placing a statute on screen, pushing in on a highlighted line, or keeping subtitles in sync after a cut. That repetition is what we automate.</p>
-    <p>Our rule is that the editor stays in charge. Effects that a person has approved become modules that can be called again. Anything not yet approved stays manual.</p>
-
-    <h2><span class="n">2</span>Pipeline</h2>
-    <figure>
-      <div class="scroll"><svg viewBox="0 0 640 150" role="img" aria-label="Pipeline: script, voice and presenter, edit, review, delivery, with review feeding back into edit">
-        <defs><marker id="a" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 8 4 0 8z" fill="#111"/></marker></defs>
-        <g font-family="STIX Two Text, Times New Roman, serif" font-size="13" text-anchor="middle" fill="#111">
-          <g fill="none" stroke="#111" stroke-width="1">
-            <rect x="4" y="40" width="104" height="52"/><rect x="136" y="40" width="104" height="52"/>
-            <rect x="268" y="40" width="104" height="52" stroke-width="1.8"/><rect x="400" y="40" width="104" height="52"/>
-            <rect x="532" y="40" width="104" height="52"/>
-          </g>
-          <g stroke="#111" stroke-width="1" marker-end="url(#a)">
-            <line x1="108" y1="66" x2="134" y2="66"/><line x1="240" y1="66" x2="266" y2="66"/>
-            <line x1="372" y1="66" x2="398" y2="66"/><line x1="504" y1="66" x2="530" y2="66"/>
-          </g>
-          <path d="M452 92 V120 H320 V94" fill="none" stroke="#111" stroke-dasharray="4 3" marker-end="url(#a)"/>
-          <text x="56" y="62">Script</text><text x="56" y="79" font-size="11" font-style="italic">Claude rewrite</text>
-          <text x="188" y="62">Voice &amp;</text><text x="188" y="79">presenter</text>
-          <text x="320" y="62">Edit</text><text x="320" y="79" font-size="11" font-style="italic">DaVinci Tool</text>
-          <text x="452" y="62">Review</text><text x="452" y="79" font-size="11" font-style="italic">client comments</text>
-          <text x="584" y="62">Delivery</text><text x="584" y="79" font-size="11" font-style="italic">1080×1920</text>
-          <text x="386" y="138" font-size="11" font-style="italic">revisions</text>
-          <text x="56" y="28" font-size="11">expert draft</text>
-        </g>
-      </svg></div>
-      <figcaption><b>Figure 1:</b> The production pipeline. Each stage writes its result to the episode folder before the next one starts. Client review sends changes back to the edit stage, never straight into the delivered file.</figcaption>
-    </figure>
-    <ol>
-      <li><b>Script.</b> Claude rewrites the expert's draft for speaking and marks claims that need the expert's confirmation. The original draft is never edited in place; every version is kept side by side.</li>
-      <li><b>Voice and presenter.</b> Text-to-speech narration in the client's chosen voice, then an AI presenter video driven by that audio.</li>
-      <li><b>Edit.</b> Our editing tool (Section 3) assembles the timeline in DaVinci Resolve: layouts, source documents, b-roll, subtitles and chapter markers.</li>
-      <li><b>Review.</b> The client reads scripts and leaves comments on a review page we host. Comments go into the next revision.</li>
-    </ol>
-
-    <h2><span class="n">3</span>The editing tool</h2>
-    <p>DaVinci Tool is a local app that drives Resolve through its scripting API. Each visual effect is a module with a version number. A module is used only after a person has approved how it looks on a real episode. Claude Code builds and maintains the tool, and calls it during production through a fixed sequence: look up the effect, plan the change, apply it, then read back the result.</p>
-    <figure>
-      <img src="fig/tool.jpg" alt="DaVinci Tool effect library with thirteen effect modules and the bilingual subtitle module selected" loading="lazy" width="2100" height="1350">
-      <figcaption><b>Figure 2:</b> The effect library. Each card is a versioned module. <i>Ready</i> means it has been approved on a real episode; <i>Pending</i> means it is still awaiting approval. The panel on the right binds the bilingual subtitle module to one specific production timeline. Interface shown in its English localization.</figcaption>
-    </figure>
-
-    <h2><span class="n">4</span>Safeguards</h2>
-    <p>An editing tool that writes into a client's project must not do damage quietly. Each rule below exists because of something that once went wrong:</p>
-    <ul>
-      <li>Module templates are locked by SHA-256. If a file changes, plans made against the old version stop working.</li>
-      <li>Every write names its target project, timeline and track explicitly. The tool never guesses.</li>
-      <li>One worker talks to Resolve at a time. Every request has an idempotency key, so sending the same request twice does not create duplicates.</li>
-      <li>A run counts as successful only after the tool has read the timeline back and seen the change. If the worker stops mid-run, the result is marked for checking and never retried blindly.</li>
-      <li>Anything an editor changed by hand blocks overwriting. The tool lists the differences and waits for a person to decide.</li>
-    </ul>
-
-    <h2><span class="n">5</span>Case study: a Section 337 lecture series</h2>
-    <p>The first production use is a series of explainer lectures on U.S. patent law and Section 337 investigations at the U.S. International Trade Commission, for a U.S.-based intellectual property law firm. Episodes are vertical video with Chinese narration and English subtitles. They often quote statutes and case documents, which must appear on screen exactly as published.</p>
-    <figure>
-      <img src="fig/frames.jpg" alt="Two frames of the perspective document effect showing a U.S. public law page with bilingual subtitles" width="432" height="384" style="max-width:340px;margin:0 auto">
-      <figcaption><b>Figure 3:</b> Two frames from the <i>perspective document</i> module on a delivered episode. The original page of a U.S. public law tilts into view, then straightens for reading. Bilingual subtitles follow the layout automatically.</figcaption>
-    </figure>
-    <table>
-      <caption><b>Table 1:</b> The series and the tool, as of October 2026.</caption>
-      <thead><tr><th>Item</th><th class="r">Value</th></tr></thead>
-      <tbody>
-        <tr><td>Episodes planned</td><td class="r">30</td></tr>
-        <tr><td>Episodes in production or delivered</td><td class="r">8</td></tr>
-        <tr><td>Format</td><td class="r">1080×1920, 25 fps</td></tr>
-        <tr><td>Hand-editing time per episode (before the tool)</td><td class="r">6–9 h</td></tr>
-        <tr><td>Effect modules in the library</td><td class="r">13</td></tr>
-        <tr><td>Automated tests in the tool</td><td class="r">174</td></tr>
-      </tbody>
-    </table>
-
-    <h2><span class="n">6</span>Limitations</h2>
-    <p>We have not yet measured net time saved. Building the tool while delivering episodes took real effort. Episode turnaround is now about two days, but those two days include client review, so they cannot be compared directly with the hand-editing figure in Table 1. The modules were approved for one series format, and a new client format would need its own approval round. Every result so far comes from a single client.</p>
-
-    <div class="fn">Contact: <a href="mailto:hi@qiyuan.page">hi@qiyuan.page</a>. Client and presenter footage is shown only with permission.</div>
-    <div class="pageno">1</div>
-  </article>
-
-  <!-- ===================== 中文 ===================== -->
-  <article class="zh" lang="zh-CN">
-    <h1>从专家讲稿到成片：<br>一条用 Claude 搭建的剪辑流水线</h1>
-
-    <div class="authors">
-      <div><b>Felix Q. Yuan</b><br>Qiyuan Studio<br><code>hi@qiyuan.page</code></div>
+    <div class="case">
+      <figure>
+        <div class="phone"><video src="media/series.mp4" poster="media/series.jpg" autoplay muted loop playsinline preload="metadata" aria-label="Excerpts from lecture 8"></video></div>
+        <figcaption>
+          <span class="en"><span class="fig">Fig. 2</span>Excerpts from Lecture 8, <i>The Participants</i>.</span>
+          <span class="zh"><span class="fig">图 2</span>第八讲《参与者》片段。</span>
+        </figcaption>
+      </figure>
+      <div>
+        <h3 class="en">Section 337, a lecture series</h3>
+        <h3 class="zh">337 调查系列讲座</h3>
+        <p class="en">A 30-episode series on U.S. patent law and Section 337 investigations at the U.S. International Trade Commission, made for a U.S.-based intellectual property law firm. The firm writes the scripts. We turn each one into a vertical episode with a presenter, the original statutes and court documents on screen, chapter markers and bilingual subtitles.</p>
+        <p class="zh">为一家美国知识产权律所制作的 30 讲系列，内容是美国专利法和美国国际贸易委员会的 337 调查。律所写讲稿，我们把每一讲做成竖屏成片：讲者出镜，法条和判决原文上屏，配章节进度和中英双语字幕。</p>
+        <p class="en">Legal statements are checked against the original sources before the edit, and the client approves every script.</p>
+        <p class="zh">剪辑之前，法律表述先对照原始出处核实，每一版讲稿都经客户确认。</p>
+        <dl class="meta">
+          <dt><span class="en">Client</span><span class="zh">客户</span></dt><dd><span class="en">U.S. IP law firm</span><span class="zh">美国知识产权律所</span></dd>
+          <dt><span class="en">Format</span><span class="zh">规格</span></dt><dd><span class="en">Vertical, 1080×1920, Chinese narration with English subtitles</span><span class="zh">竖屏 1080×1920，中文讲解，英文字幕</span></dd>
+          <dt><span class="en">Status</span><span class="zh">进度</span></dt><dd><span class="en">8 of 30 episodes, ongoing</span><span class="zh">已到第 8 讲，共 30 讲</span></dd>
+        </dl>
+      </div>
     </div>
 
-    <section class="abstract">
-      <h2>摘要</h2>
-      <p>律师等专业人士懂内容，却没时间把内容做成视频。Qiyuan Studio 接手专家的讲稿，交付剪好的成片。这条生产流水线是用 Claude Code 搭的：Claude 把讲稿改写成适合口播的版本，并标出需要专家核实的事实；配音和数字人出镜由定稿生成；我们自己的剪辑工具再从一套带版本号的效果模块里，在 DaVinci Resolve 中拼出时间线，并回读时间线，确认每一步改动真的落到了工程里。客户在共享的审稿页上批注。纯手工剪一集要 6 到 9 小时。目前这条流水线用于一家美国知识产权律所的 30 讲系列，讲美国专利法和 337 调查。每集到底省下多少时间，我们还没测过；第 6 节写明了哪些已知、哪些未知。</p>
-    </section>
+    <div class="tool">
+      <div class="text">
+        <h3>DaVinci Tool</h3>
+        <p class="en">Our own editing tool, built with Claude Code. It drives DaVinci Resolve through its scripting API from a library of versioned effect modules: bilingual subtitles, document highlights, presenter layouts, chapter bars. An effect joins the library only after a person has approved it on a real episode. After every change, the tool reads the timeline back to confirm the change is really there.</p>
+        <p class="zh">我们自己的剪辑工具，用 Claude Code 开发。它通过 DaVinci Resolve 的脚本接口，调用一套带版本号的效果模块：双语字幕、文件高亮、讲者版式、章节进度条。效果要先在真实剪辑里被人确认，才会进效果库。每做一次改动，工具都会回读时间线，确认改动确实生效了。</p>
+      </div>
+      <figure>
+        <div class="shot"><img src="fig/tool.jpg" alt="DaVinci Tool effect library" width="2100" height="1350" loading="lazy"></div>
+        <figcaption>
+          <span class="en"><span class="fig">Fig. 3</span>The effect library. <i>Ready</i> modules have been approved on a real episode; <i>Pending</i> ones are still awaiting approval.</span>
+          <span class="zh"><span class="fig">图 3</span>效果库（界面英文版）。「Ready」是已在真实剪辑中确认的模块，「Pending」是还在等确认的。</span>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
 
-    <h2><span class="n">1</span>引言</h2>
-    <p>专业服务类的讲解视频，结构总在重复：一位讲者、必须原样呈现的原始文件、双语字幕，还有一位逐句核对法律表述的客户。剪辑时间大多花在反复手做同样的动作上，比如把法条放上画面、推近高亮的那一行、剪辑后让字幕保持同步。我们自动化的正是这些重复。</p>
-    <p>我们的原则是剪辑师说了算。人确认过的效果，才会变成可以反复调用的模块；没确认的，继续手工做。</p>
+  <section class="block" id="process">
+    <div class="head">
+      <div class="num"><span>02</span><span class="en">Process</span><span class="zh">流程</span></div>
+      <div>
+        <h2 class="en">From draft to delivery</h2><h2 class="zh">从讲稿到交付</h2>
+        <p class="en">Each stage saves its result before the next one begins. Client feedback goes back to the edit, never straight into the delivered file.</p>
+        <p class="zh">每一步先保存结果，下一步才开始。客户的意见回到剪辑这一步，不会直接改交付文件。</p>
+      </div>
+    </div>
+    <div class="grid4">
+      <div class="step"><div class="k">I</div>
+        <h4 class="en">Script</h4><h4 class="zh">讲稿</h4>
+        <p class="en">Claude rewrites the draft for speaking and flags every claim the expert should confirm. The original is never edited in place.</p>
+        <p class="zh">Claude 把原稿改写成口播稿，并标出每一处需要专家确认的说法。原稿始终保持原样。</p></div>
+      <div class="step"><div class="k">II</div>
+        <h4 class="en">Voice &amp; presenter</h4><h4 class="zh">配音与出镜</h4>
+        <p class="en">Narration in the client's chosen voice, then a presenter video driven by that audio.</p>
+        <p class="zh">用客户选定的音色生成配音，再用这段音频驱动讲者出镜视频。</p></div>
+      <div class="step"><div class="k">III</div>
+        <h4 class="en">Edit</h4><h4 class="zh">剪辑</h4>
+        <p class="en">DaVinci Tool assembles the timeline: layouts, source documents, b-roll, subtitles and chapters.</p>
+        <p class="zh">DaVinci Tool 拼出时间线：版式、原始文件、空镜、字幕和章节。</p></div>
+      <div class="step"><div class="k">IV</div>
+        <h4 class="en">Review</h4><h4 class="zh">审稿</h4>
+        <p class="en">The client comments on a shared review page, and changes go into the next cut.</p>
+        <p class="zh">客户在共享审稿页上批注，修改进入下一版。</p></div>
+    </div>
+  </section>
 
-    <h2><span class="n">2</span>流水线</h2>
-    <figure>
-      <div class="scroll"><svg viewBox="0 0 640 150" role="img" aria-label="流水线：讲稿、配音与出镜、剪辑、审稿、交付，审稿意见回到剪辑">
-        <defs><marker id="b" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 8 4 0 8z" fill="#111"/></marker></defs>
-        <g font-family="STIX Two Text, Songti SC, serif" font-size="13" text-anchor="middle" fill="#111">
-          <g fill="none" stroke="#111" stroke-width="1">
-            <rect x="4" y="40" width="104" height="52"/><rect x="136" y="40" width="104" height="52"/>
-            <rect x="268" y="40" width="104" height="52" stroke-width="1.8"/><rect x="400" y="40" width="104" height="52"/>
-            <rect x="532" y="40" width="104" height="52"/>
-          </g>
-          <g stroke="#111" stroke-width="1" marker-end="url(#b)">
-            <line x1="108" y1="66" x2="134" y2="66"/><line x1="240" y1="66" x2="266" y2="66"/>
-            <line x1="372" y1="66" x2="398" y2="66"/><line x1="504" y1="66" x2="530" y2="66"/>
-          </g>
-          <path d="M452 92 V120 H320 V94" fill="none" stroke="#111" stroke-dasharray="4 3" marker-end="url(#b)"/>
-          <text x="56" y="62">讲稿</text><text x="56" y="79" font-size="11">Claude 改写</text>
-          <text x="188" y="62">配音与</text><text x="188" y="79">数字人出镜</text>
-          <text x="320" y="62">剪辑</text><text x="320" y="79" font-size="11">DaVinci Tool</text>
-          <text x="452" y="62">审稿</text><text x="452" y="79" font-size="11">客户批注</text>
-          <text x="584" y="62">交付</text><text x="584" y="79" font-size="11">1080×1920</text>
-          <text x="386" y="138" font-size="11">修改意见</text>
-          <text x="56" y="28" font-size="11">专家原稿</text>
-        </g>
-      </svg></div>
-      <figcaption><b>图 1：</b>生产流水线。每一步先把结果写进本集目录，下一步才开始。客户的审稿意见回到剪辑这一步，不会直接改交付文件。</figcaption>
-    </figure>
-    <ol>
-      <li><b>讲稿。</b>Claude 把专家原稿改写成口播稿，并标出需要专家确认的说法。原稿始终不在原处修改，每个版本都并排留存。</li>
-      <li><b>配音与出镜。</b>按客户选定的音色生成配音，再用这段音频驱动数字人出镜视频。</li>
-      <li><b>剪辑。</b>我们的剪辑工具（第 3 节）在 DaVinci Resolve 里拼出时间线：版式、原始文件、空镜、字幕和章节标记。</li>
-      <li><b>审稿。</b>客户在我们搭的审稿页上读稿、批注，批注进入下一版修改。</li>
-    </ol>
+  <section class="block" id="principles">
+    <div class="head">
+      <div class="num"><span>03</span><span class="en">Principles</span><span class="zh">原则</span></div>
+      <div><h2 class="en">How we work</h2><h2 class="zh">我们怎么做事</h2></div>
+    </div>
+    <div class="grid3">
+      <div class="step">
+        <h4 class="en">People approve, machines repeat</h4><h4 class="zh">人来确认，机器来重复</h4>
+        <p class="en">Nothing is automated until a person has approved how it looks. Whatever hasn't been approved stays manual.</p>
+        <p class="zh">效果先经人确认，才会自动化。没确认过的，继续手工做。</p></div>
+      <div class="step">
+        <h4 class="en">Hand edits are protected</h4><h4 class="zh">手改的地方不覆盖</h4>
+        <p class="en">If an editor has changed something by hand, the tool stops, lists the differences and waits for a decision.</p>
+        <p class="zh">剪辑师手动改过的地方，工具会停下，列出差异，等人决定。</p></div>
+      <div class="step">
+        <h4 class="en">Every step is on record</h4><h4 class="zh">每一步都可回查</h4>
+        <p class="en">Script versions, sources and edit runs are all kept. A change counts as done only after it has been checked.</p>
+        <p class="zh">讲稿版本、出处和每次剪辑操作都留存。改动经过核实，才算完成。</p></div>
+    </div>
+  </section>
+</main>
 
-    <h2><span class="n">3</span>剪辑工具</h2>
-    <p>DaVinci Tool 是一个本地应用，通过 Resolve 的脚本接口操作剪辑工程。每个视觉效果都是一个带版本号的模块，只有在真实剪辑里被人确认过效果，才会正式启用。Claude Code 负责开发和维护这个工具，生产时也由它按固定顺序调用：查效果、做计划、执行、回读结果。</p>
-    <figure>
-      <img src="fig/tool.jpg" alt="DaVinci Tool 效果库，共 13 个效果模块，右侧选中双语字幕模块" loading="lazy" width="2100" height="1350">
-      <figcaption><b>图 2：</b>效果库。每张卡片是一个带版本号的模块。「Ready」表示已在真实剪辑中确认，「Pending」表示还在等确认。右侧面板把双语字幕模块绑定到一条具体的正式时间线。截图为界面英文版。</figcaption>
-    </figure>
-
-    <h2><span class="n">4</span>安全机制</h2>
-    <p>往客户工程里写东西的工具，不能悄悄出错。下面每一条规则，都来自一次真实出过的问题：</p>
-    <ul>
-      <li>模块模板按 SHA-256 锁定。文件一旦变化，基于旧版本做的计划就失效。</li>
-      <li>每次写入都明确指定工程、时间线和轨道，工具从不猜。</li>
-      <li>同一时间只有一个进程操作 Resolve。每个请求带幂等键，同一请求发两次也不会重复创建。</li>
-      <li>回读时间线、确认改动真的生效，才算执行成功。进程中途中断时，结果标为「待核对」，绝不盲目重试。</li>
-      <li>剪辑师手动改过的地方，工具不会覆盖。它会列出差异，等人来决定。</li>
-    </ul>
-
-    <h2><span class="n">5</span>案例：337 调查系列讲座</h2>
-    <p>第一个正式使用场景，是为一家美国知识产权律所制作的系列讲解视频，内容是美国专利法和美国国际贸易委员会的 337 调查。视频为竖屏，中文讲解、英文字幕，经常引用法条和案件文件，这些必须按原样出现在画面上。</p>
-    <figure>
-      <img src="fig/frames.jpg" alt="透视文件效果的两帧，展示美国公法原页和双语字幕" width="432" height="384" style="max-width:340px;margin:0 auto">
-      <figcaption><b>图 3：</b>已交付成片中「透视文件」模块的两帧。美国公法的原始页面先倾斜入画，再摆正供阅读；双语字幕自动跟随版式。</figcaption>
-    </figure>
-    <table>
-      <caption><b>表 1：</b>系列与工具概况（截至 2026 年 10 月）</caption>
-      <thead><tr><th>项目</th><th class="r">数值</th></tr></thead>
-      <tbody>
-        <tr><td>计划集数</td><td class="r">30</td></tr>
-        <tr><td>制作中或已交付</td><td class="r">8</td></tr>
-        <tr><td>规格</td><td class="r">1080×1920，25 fps</td></tr>
-        <tr><td>每集纯手工剪辑时间（用工具前）</td><td class="r">6–9 小时</td></tr>
-        <tr><td>效果库模块数</td><td class="r">13</td></tr>
-        <tr><td>工具自动化测试数</td><td class="r">174</td></tr>
-      </tbody>
-    </table>
-
-    <h2><span class="n">6</span>局限</h2>
-    <p>每集净省多少时间，我们还没测过。一边交付一边开发工具，本身花了不少功夫。现在一集的周期大约两天，但这两天包含客户审稿，不能直接和表 1 里的纯手工剪辑时间比较。这些模块是按一个系列的规格确认的，换一种客户规格需要重新确认。目前所有结果都来自同一位客户。</p>
-
-    <div class="fn">联系：<a href="mailto:hi@qiyuan.page">hi@qiyuan.page</a>。客户与出镜人画面仅在获得许可后展示。</div>
-    <div class="pageno">1</div>
-  </article>
-</div>
+<footer>
+  <div class="wrap">
+    <span>Qiyuan Studio · <a href="mailto:hi@qiyuan.page">hi@qiyuan.page</a></span>
+    <span class="en">Client footage shown with permission. © 2026</span>
+    <span class="zh">客户画面经许可展示。© 2026</span>
+  </div>
+</footer>
 
 <script>
   (function () {
@@ -274,7 +251,6 @@
     function set(l) {
       root.lang = l;
       btn.innerHTML = l === 'zh' ? 'EN / <b>中文</b>' : '<b>EN</b> / 中文';
-      
       try { localStorage.setItem('lang', l); } catch (e) {}
     }
     var saved = null;
@@ -282,6 +258,9 @@
     var q = new URLSearchParams(location.search).get('lang');
     set(q === 'zh' || q === 'en' ? q : saved || 'en');
     btn.addEventListener('click', function () { set(root.lang === 'zh' ? 'en' : 'zh'); });
+    if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.querySelectorAll('video').forEach(function (v) { v.removeAttribute('autoplay'); v.pause(); v.controls = true; });
+    }
   })();
 </script>
 </body>
